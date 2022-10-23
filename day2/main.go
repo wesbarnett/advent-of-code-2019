@@ -2,17 +2,14 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
 	"strings"
 )
 
-func main() {
-	var file string
-	flag.StringVar(&file, "infile", "input", "Input file")
-	flag.Parse()
-
+func read_program(file string) []int {
 	content, err := os.ReadFile(file)
 	if err != nil {
 		log.Fatal(err)
@@ -26,7 +23,10 @@ func main() {
 			log.Fatal(err)
 		}
 	}
+	return program
+}
 
+func run_intcode_program(program []int) int {
 	i := 0
 	for {
 		v := program[i]
@@ -39,4 +39,15 @@ func main() {
 		}
 		i = i + 4
 	}
+	return program[0]
+}
+
+func main() {
+	var file string
+	flag.StringVar(&file, "infile", "input", "Input file")
+	flag.Parse()
+
+	program := read_program(file)
+	result := run_intcode_program(program)
+	fmt.Println(result)
 }
