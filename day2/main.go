@@ -9,56 +9,53 @@ import (
 	"strings"
 )
 
-func read_program(file string) []int {
+func readProgram(file string) []int {
 	content, err := os.ReadFile(file)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	input := strings.Split(strings.Trim(string(content), "\n"), ",")
-	program := make([]int, len(input))
-	for i := range program {
-		program[i], err = strconv.Atoi(input[i])
+	mem := make([]int, len(input))
+	for i := range mem {
+		mem[i], err = strconv.Atoi(input[i])
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
-	return program
+	return mem
 }
 
-func find_noun_and_verb(program []int, target int) (int, int) {
+func findNounAndVerb(mem []int, target int) (int, int) {
+	mem_copy := make([]int, len(mem))
 	for noun := 0; noun < 100; noun++ {
 		for verb := 0; verb < 100; verb++ {
-			program[1] = noun
-			program[2] = verb
-			result := run_intcode_program(program)
+			copy(mem_copy, mem)
+			result := runIntcodeProgram(mem_copy, noun, verb)
 			if result == target {
 				return noun, verb
 			}
-
 		}
 	}
 	return -1, -1
 }
 
-func run_intcode_program(program []int) int {
-	i := 0
+func runIntcodeProgram(mem []int, noun int, verb int) int {
+	mem[1] = noun
+	mem[2] = verb
+	var addr int
 	for {
-		v := program[i]
-		target := program[i+3]
-		if target > len(program) || target < 0 {
-			return -1
+		switch mem[addr] {
+		case 1:
+			mem[mem[addr+3]] = mem[mem[addr+1]] + mem[mem[addr+2]]
+		case 2:
+			mem[mem[addr+3]] = mem[mem[addr+1]] * mem[mem[addr+2]]
+		case 99:
+			return mem[0]
 		}
-		if v == 1 {
-			program[target] = program[program[i+1]] + program[program[i+2]]
-		} else if v == 2 {
-			program[target] = program[program[i+1]] * program[program[i+2]]
-		} else if v == 99 {
-			return program[0]
-		}
-		i = i + 4
+		addr += 4
 	}
-	return program[0]
+	return mem[0]
 }
 
 func main() {
@@ -66,10 +63,11 @@ func main() {
 	flag.StringVar(&file, "infile", "input", "Input file")
 	flag.Parse()
 
-	program := read_program(file)
-	result := run_intcode_program(program)
+	mem := readProgram(file)
+	result := runIntcodeProgram(mem, 12, 2)
 	fmt.Println(result)
 
-	noun, verb := find_noun_and_verb(program, 19690720)
-	fmt.Println(noun, verb)
+	mem = readProgram(file)
+	noun, verb := findNounAndVerb(mem, 19690720)
+	fmt.Println(100*noun + verb)
 }
