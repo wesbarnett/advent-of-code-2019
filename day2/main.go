@@ -37,6 +37,7 @@ func findNounAndVerb(mem []int, target int) (int, int) {
 			}
 		}
 	}
+	log.Fatal("Target not found")
 	return -1, -1
 }
 
@@ -55,7 +56,8 @@ func runIntcodeProgram(mem []int, noun int, verb int) int {
 		}
 		addr += 4
 	}
-	return mem[0]
+	log.Fatal("Missing code 99")
+	return -1
 }
 
 func main() {
