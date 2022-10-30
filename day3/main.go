@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -90,6 +91,36 @@ func calcMinDist(x []int, y []int) int {
 	return minDist
 }
 
+func calcSteps(x []int, y []int, intersectionX int, intersectionY int) (int, error) {
+
+	for i, _ := range x {
+		if x[i] == intersectionX && y[i] == intersectionY {
+			return i, nil
+		}
+	}
+	return -1, errors.New("Wire doesn't overlap with intersection")
+}
+
+func findFewestSteps(wire1X []int, wire1Y []int, wire2X []int, wire2Y []int, intersectionX []int, intersectionY []int) int {
+
+	fewestSteps := math.MaxInt
+	for i, _ := range intersectionX {
+		steps1, err := calcSteps(wire1X, wire1Y, intersectionX[i], intersectionY[i])
+		if err != nil {
+			continue
+		}
+		steps2, err := calcSteps(wire2X, wire2Y, intersectionX[i], intersectionY[i])
+		if err != nil {
+			continue
+		}
+		steps := steps1 + steps2
+		if steps < fewestSteps {
+			fewestSteps = steps
+		}
+	}
+	return fewestSteps
+}
+
 func main() {
 	var file string
 	flag.StringVar(&file, "infile", "input", "Input file")
@@ -101,4 +132,8 @@ func main() {
 	intersectionX, intersectionY := findIntersections(wire1X, wire1Y, wire2X, wire2Y)
 	minDist := calcMinDist(intersectionX, intersectionY)
 	fmt.Println(minDist)
+
+	fewestSteps := findFewestSteps(wire1X, wire1Y, wire2X, wire2Y, intersectionX, intersectionY)
+	fmt.Println(fewestSteps)
+
 }
