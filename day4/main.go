@@ -9,6 +9,42 @@ import (
 	"strings"
 )
 
+func validatePasswordPart2(password int) bool {
+
+	passwordStr := strconv.Itoa(password)
+	currRepeatLength := 1
+	repeatedDigit := false
+	for i := 1; i < len(passwordStr); i++ {
+		curr, err := strconv.Atoi(string(passwordStr[i]))
+		if err != nil {
+			log.Fatal(err)
+		}
+		prev, err := strconv.Atoi(string(passwordStr[i-1]))
+		if err != nil {
+			log.Fatal(err)
+		}
+		// Decreases so invalid
+		if curr < prev {
+			return false
+		}
+		// Required repeating digit
+		if curr == prev {
+			currRepeatLength += 1
+		} else {
+			if currRepeatLength == 2 {
+				repeatedDigit = true
+			}
+			currRepeatLength = 1
+		}
+	}
+	// Handle if repeating sequence is at the end
+	if currRepeatLength == 2 {
+		repeatedDigit = true
+	}
+	return repeatedDigit
+
+}
+
 func validatePassword(password int) bool {
 
 	passwordStr := strconv.Itoa(password)
@@ -61,7 +97,14 @@ func main() {
 			validPasswordCount += 1
 		}
 	}
-
 	fmt.Println(validPasswordCount)
+
+	validPasswordCountPart2 := 0
+	for password := lowerBound; password <= upperBound; password++ {
+		if validatePasswordPart2(password) {
+			validPasswordCountPart2 += 1
+		}
+	}
+	fmt.Println(validPasswordCountPart2)
 
 }
