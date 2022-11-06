@@ -44,7 +44,6 @@ func getParams(mem []int, addr int, num int) []int {
 }
 
 func runIntcodeProgram(mem []int, input int) {
-	var output int
 	addr := 0
 	for {
 		switch mem[addr] % 100 {
@@ -61,8 +60,7 @@ func runIntcodeProgram(mem []int, input int) {
 			addr += 2
 		case 4:
 			params := getParams(mem, addr, 1)
-			output = params[0]
-			fmt.Println(output)
+			fmt.Println(params[0])
 			addr += len(params) + 1
 		case 5:
 			params := getParams(mem, addr, 2)
