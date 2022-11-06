@@ -51,11 +51,11 @@ func runIntcodeProgram(mem []int, input int) {
 		case 1:
 			params := getParams(mem, addr, 3)
 			mem[mem[addr+3]] = params[0] + params[1]
-			addr += 4
+			addr += len(params) + 1
 		case 2:
 			params := getParams(mem, addr, 3)
 			mem[mem[addr+3]] = params[0] * params[1]
-			addr += 4
+			addr += len(params) + 1
 		case 3:
 			mem[mem[addr+1]] = input
 			addr += 2
@@ -63,11 +63,39 @@ func runIntcodeProgram(mem []int, input int) {
 			params := getParams(mem, addr, 1)
 			output = params[0]
 			fmt.Println(output)
-			addr += 2
+			addr += len(params) + 1
+		case 5:
+			params := getParams(mem, addr, 2)
+			if params[0] != 0 {
+				addr = params[1]
+			} else {
+				addr += len(params) + 1
+			}
+		case 6:
+			params := getParams(mem, addr, 2)
+			if params[0] == 0 {
+				addr = params[1]
+			} else {
+				addr += len(params) + 1
+			}
+		case 7:
+			params := getParams(mem, addr, 3)
+			if params[0] < params[1] {
+				mem[mem[addr+3]] = 1
+			} else {
+				mem[mem[addr+3]] = 0
+			}
+			addr += len(params) + 1
+		case 8:
+			params := getParams(mem, addr, 3)
+			if params[0] == params[1] {
+				mem[mem[addr+3]] = 1
+			} else {
+				mem[mem[addr+3]] = 0
+			}
+			addr += len(params) + 1
 		case 99:
 			return
-		default:
-			addr += 1
 		}
 	}
 	log.Fatal("Missing code 99")
@@ -82,4 +110,6 @@ func main() {
 	mem := readProgram(file)
 	runIntcodeProgram(mem, 1)
 
+	mem = readProgram(file)
+	runIntcodeProgram(mem, 5)
 }
