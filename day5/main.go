@@ -26,61 +26,42 @@ func readProgram(file string) []int {
 	return mem
 }
 
+func getParams(mem []int, addr int, num int) []int {
+	var params []int
+	var param int
+	divisor := 100
+	for i := 1; i <= num; i++ {
+		switch mem[addr] / divisor % 10 {
+		case 0:
+			param = mem[mem[addr+i]]
+		case 1:
+			param = mem[addr+i]
+		}
+		params = append(params, param)
+		divisor *= 10
+	}
+	return params
+}
+
 func runIntcodeProgram(mem []int, input int) {
-	var output, param1, param2 int
+	var output int
 	addr := 0
 	for {
-		x := mem[addr]
-		opcode := x % 100
-		switch opcode {
+		switch mem[addr] % 100 {
 		case 1:
-			switch x / 100 % 10 {
-			case 0:
-				param1 = mem[mem[addr+1]]
-			case 1:
-				param1 = mem[addr+1]
-			}
-
-			switch x / 1000 % 10 {
-			case 0:
-				param2 = mem[mem[addr+2]]
-			case 1:
-				param2 = mem[addr+2]
-			}
-
-			mem[mem[addr+3]] = param1 + param2
-
+			params := getParams(mem, addr, 3)
+			mem[mem[addr+3]] = params[0] + params[1]
 			addr += 4
-
 		case 2:
-			switch x / 100 % 10 {
-			case 0:
-				param1 = mem[mem[addr+1]]
-			case 1:
-				param1 = mem[addr+1]
-			}
-
-			switch x / 1000 % 10 {
-			case 0:
-				param2 = mem[mem[addr+2]]
-			case 1:
-				param2 = mem[addr+2]
-			}
-
-			mem[mem[addr+3]] = param1 * param2
-
+			params := getParams(mem, addr, 3)
+			mem[mem[addr+3]] = params[0] * params[1]
 			addr += 4
 		case 3:
 			mem[mem[addr+1]] = input
 			addr += 2
 		case 4:
-			switch x / 100 % 10 {
-			case 0:
-				param1 = mem[mem[addr+1]]
-			case 1:
-				param1 = mem[addr+1]
-			}
-			output = param1
+			params := getParams(mem, addr, 1)
+			output = params[0]
 			fmt.Println(output)
 			addr += 2
 		case 99:
@@ -90,7 +71,7 @@ func runIntcodeProgram(mem []int, input int) {
 		}
 	}
 	log.Fatal("Missing code 99")
-	return -1
+	return
 }
 
 func main() {
